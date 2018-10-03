@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!-- saved from url=(0047)http://www.cescg.org/CESCG97/olearnik/txmap.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>2 Texture Mapping</title>
+   <meta name="GENERATOR" content="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</head>
+<body>
+
+<h1 align="CENTER"><font color="#008040">2 Texture Mapping</font></h1>
+
+<center><p>
+</p><hr width="100%"><p></p></center>
+
+<h2><font color="#0000A0">2.1 Definition</font></h2>
+
+<p>Texture of object surface represents a structure of surface. Any 2D
+texture we can represent by map:</p>
+
+<ul>
+<ul>
+<p><i>t: D<sub>t</sub>--&gt;M, </i>where <i>D<sub>t </sub></i>is subset
+of<i> R<sup>2</sup> </i>and <i>M </i>is subset of <i>R</i>(<i>R<sup>3</sup></i>).</p>
+</ul>
+</ul>
+
+<p>Map <i>t</i> maps planar area (texture domain) to modulation space (gray-scale
+or true colors typically). Map <i>t</i> is often given by a table. The
+table is e.g. scanned picture or any other raster image.</p>
+
+<p>In general, texture mapping is process which consist of: </p>
+
+<ul>
+<li>"inverse" mapping which transform any surface point to texture
+map domain</li>
+</ul>
+
+<ul>
+<ul>
+<p>.<i>m: D<sub>m</sub>--&gt;D<sub>t</sub></i>, where <i>D<sub>m </sub></i>is
+surface region.</p>
+</ul>
+
+<li>transforming the texture coordinates to modulation space via map <i>t</i>.</li>
+</ul>
+
+<h2>
+<hr width="100%"></h2>
+
+<h2><font color="#0000A0">2.2 Inverse mapping <i>m</i></font></h2>
+
+<h3><i><font color="#0000A0">2.2.1 Triangular mesh</font></i></h3>
+
+<center><p><img src="./2 Texture Mapping_files/t1.gif" height="429" width="655"></p></center>
+
+<center><p><b><font color="#000080">Figure 1: Inverse mapping in triangular
+mesh</font></b></p></center>
+
+<p>In <b>Figure 1</b> the inverse mapping of point P located in triangle
+BCD to matching texture triangle is demonstrated. Point P can be expressed
+as follows:</p>
+
+<ul>
+<ul>
+<p><i>P�=�B + w�</i>(<i>C�-�B</i>)<i>�+�v�</i>(<i>D�-�B</i>)<i>; ���������u�=�1�-�v�-�w</i></p>
+</ul>
+</ul>
+
+<p><i>(u, v, w)</i> are barycentric coordinates of point P in triangle
+BCD. These coordinates can be obtained from the next formula:</p>
+
+<ul>
+<ul>
+<p><img src="./2 Texture Mapping_files/barycen.gif" height="202" width="404"></p>
+</ul>
+</ul>
+
+<p>Formulae for remaining coordinates v, w could be derived analogously.
+Computing the double multiple triangle area costs 2�multiplication�s (MUL)
+and 4�subtraction�s (SUB). </p>
+
+<ul>
+<ul>
+<p>2�*�<i>area</i>(<i>ABC</i>)<i>�=�</i>(<i>A<sub>x</sub>�-�B<sub>x</sub></i>)<i>�*�</i>(<i>A<sub>y</sub>�-�C<sub>y</sub></i>)<i>�-
+</i>(<i>A<sub>y</sub>�-�B<sub>y</sub></i>)<i>�*�</i>(<i>A<sub>x</sub>�-�C<sub>x</sub></i>)</p>
+</ul>
+</ul>
+
+<p>The areas of mesh triangles could be calculated in pre-process. If area
+of some triangle is 0, the triangle should be excluded from mesh. Thus,
+it is possible to say, that each barycentric coordinate costs 2�MUL, 4�SUB
+and 1�DIV operations.</p>
+
+<p>After obtaining barycentric coordinates (<i>u,�v</i>), matching point
+in texture domain <i>P<sub>t</sub></i> can be expressed as follows:</p>
+
+<ul>
+<ul>
+<p><i>P<sub>t</sub>�=�B<sub>t</sub>�+�w</i>(<i>C<sub>t</sub>�-�B<sub>t</sub></i>)<i>�+�</i>(<i>D<sub>t</sub>�-�B<sub>t</sub></i>)<i>,</i></p>
+</ul>
+</ul>
+
+<p>where <i>B<sub>t</sub></i>, <i>C<sub>t</sub></i>, <i>D<sub>t</sub></i>
+are texture coordinates corresponding to vertices <i>B, C, D</i>. Total
+sum of arithmetic operations necessary to obtain P<i><sub>t</sub></i> is
+8*MUL + 2*DIV + 12*SUB + 2*ADD. It's clear that algorithm based on just
+this approach can not be fast enough.</p>
+
+<h3><i><font color="#0000A0">2.2.2 Tetragonal mesh</font></i></h3>
+
+<p>We would like to show disadvantages of inverse mapping if tetragonal
+mesh is used to warn developers to use it.</p>
+
+<center><p><img src="./2 Texture Mapping_files/t2.gif" height="437" width="641"></p></center>
+
+<center><p><b><font color="#000080">Figure 2: Inverse mapping in tetragonal
+mesh</font></b></p></center>
+
+<p>There is possibility to consider that the tetragon <i>ABCD</i> in <b>Figure
+2</b> is bilinear patch. So for point <i>P</i> we can write:</p>
+
+<ul>
+<ul>
+<p><i>P�=�</i>(<i>1�-�v</i>)[(<i>1�-�u</i>)<i>A�+�uB</i>]�+�<i>v</i>[(<i>1�-�u</i>)<i>D�+�uC</i>]</p>
+</ul>
+</ul>
+
+<p>It is the system of two equations of type:</p>
+
+<ul>
+<ul>
+<p><i>x�=�a<sub>x</sub>�+�b<sub>x</sub>u�+�c<sub>x</sub>v�+�d<sub>x</sub>uv,</i></p>
+
+<p><i>y�=�a<sub>y</sub>�+�b<sub>y</sub>u�+�c<sub>y</sub>v�+�d<sub>y</sub>uv,</i></p>
+</ul>
+</ul>
+
+<p>where:</p>
+
+<ul>
+<ul>
+<p><i>P�=�</i>(<i>x,�y</i>)</p>
+
+<p><i>a<sub>x</sub>�=�A<sub>x</sub>, a<sub>y</sub>�=�A<sub>y</sub></i></p>
+
+<p><i>b<sub>x</sub>�=�B<sub>x</sub>�-�A<sub>x</sub>, b<sub>y</sub>�=�B<sub>y</sub>�-�A<sub>y</sub></i></p>
+
+<p><i>c<sub>x</sub>�=�D<sub>x</sub>�-�A<sub>x</sub>, c<sub>y</sub>�=�D<sub>y</sub>�-�A<sub>y</sub></i></p>
+
+<p><i>d<sub>x</sub>�=�A<sub>x</sub>�- B<sub>x</sub>�- D<sub>x</sub>�+�C<sub>x</sub>�,
+d<sub>y</sub>�=�A<sub>y</sub>�- B<sub>y</sub>�- D<sub>y</sub>�+�C<sub>y</sub></i></p>
+</ul>
+</ul>
+
+<p>To obtain (u, v) we can use the next formulas:</p>
+
+<ul>
+<ul>
+<p><i>K�=�c<sub>x</sub>d<sub>y</sub>�-�c<sub>y</sub>d<sub>x</sub>,</i></p>
+
+<p><i>L�=�d<sub>x</sub>y�-�d<sub>y</sub>x�+�a<sub>x</sub>d<sub>y</sub>�-�a<sub>y</sub>d<sub>x</sub>�+�c<sub>x</sub>b<sub>y</sub>�-�c<sub>y</sub>b<sub>x</sub>,</i></p>
+
+<p><i>M�=�b<sub>x</sub>y�-�b<sub>y</sub>x�+�a<sub>x</sub>b<sub>y</sub>,</i></p>
+</ul>
+</ul>
+
+<p>if <i>K�=�0, v�=</i>�-<i> M�/�L,</i> else <i>v = </i>(<i>-�L�-�</i>(<i>L<sup>2</sup>�-�4KM</i>)<i><sup>1/2</sup></i>)�/�(<i>2K</i>)
+and <i>u�=�</i>(<i>x�-�a<sub>x</sub>�-�c<sub>x</sub>v</i>)�/�(<i>b<sub>x</sub>�+�d<sub>x</sub>v</i>)</p>
+
+<p>We are able to compute (<i>u, v</i>), but this computation costs too
+much processor time, because there are too many multiplications and also
+rather slow square root used. Since domain of square root is <i>R<sup>+</sup></i>,
+it is necessary to distinguish whether tetragon is not degenerated to one
+line or non convex polygon. In case of degenerated rectangle we can not
+find solution always or we can not see some texture colors as it is shown
+in <b>Figure 3</b>. Bilinear transformation maps some texture coordinates
+outside the non convex tetragon <i>ABCD</i>. This fact excludes using tetragonal
+mesh which includes non convex tetragons, because result picture could
+contain fails (missing parts of texture)</p>
+
+<center><p><img src="./2 Texture Mapping_files/t3.gif" height="297" width="338"></p></center>
+
+<center><p><b><font color="#000080">Figure 3: Bilinear interpolation of
+points of non convex tetragon</font></b></p></center>
+
+<h3><i><font color="#0000A0">2.2.3 Comparison of triangular and tetragonal
+mesh</font></i></h3>
+
+<p>A tetragonal mesh is not often used in 3D space, because 3D tetragon
+is not planar in general. Slightly different situation could come to being
+if our work domain is 2D space (vector editor). Tetragons are planar and
+it seems that work with tetragonal mesh in plane is more natural than work
+with triangular mesh. This tendency is caused by fact that also textures
+used to be rectangular. We have made decision to implement interaction
+with rectangular mesh and texture mapping algorithm which works with converted
+triangular mesh. The conversion is hidden from designer. Since no vertex
+can be created by mesh conversion, triangles can inherit texture coordinates
+from tetragons.</p>
+
+<p>
+</p><hr width="100%"><p></p>
+
+<h2><font color="#0000A0">2.3 Problems of mapping to modulation space <i>t</i></font></h2>
+
+<h3><i><font color="#0000A0">2.3.1 No color blending approach</font></i></h3>
+
+<p>This approach is good enough if the sample frequency (number of smallest
+elements able to have assigned color � pixels) of deformed mesh cell is
+similar to sample frequency of corresponding cell in texture "wallpaper".
+Example of a failure of this approach is shown in <b>Figure 4</b> when
+mesh cell is sampled by quarter of texture sample frequency. The inverse
+map m maps each pixel in mesh cell to white texel.</p>
+
+<center><p><img src="./2 Texture Mapping_files/t4.gif" height="352" width="388"></p></center>
+
+<center><p><b><font color="#000080">Figure 4: Failure of no color blending
+approach</font></b></p></center>
+
+<h3><i><font color="#0000A0">2.3.2 Color blending</font></i></h3>
+
+<p>The solution of previous problem is blending of texture colors around
+the matching texture coordinates. Sample frequency of matching texture
+part is higher than sample frequency of mesh cell in case of demonstrated
+failure. So, squared radius of neighbourhood sphere could be obtained as
+fraction <i>a/b</i> (one possibility), where <i>a</i> is number of texels
+in matching texture part corresponding to mesh cell and <i>b</i> is number
+of pixels in mesh cell. Number of texels or pixels respectively is given
+by cell areas approximately. Texels which are closer to matching texture
+coordinates than obtained radius, should be blended. The right image which
+is corresponding to example in <b>Figure 4</b> should be light grey square
+approximately, because each pixel should be colored by color which is obtained
+by blending 2x2 texels (64/16 = 4 = 2x2). The example of color blending
+of 4 colors is shown in <b>Figure 5</b>.</p>
+
+<center><p><img src="./2 Texture Mapping_files/t5.gif" height="227" width="291"></p></center>
+
+<center><p><b><font color="#000080">Figure 5: Bilinear color interpolation</font></b></p></center>
+
+<ul>
+<ul>
+<p><i>C�=�</i>(<i>1�-�v</i>)[(<i>1�-�u</i>)<i>C<sub>1</sub>�+�uC<sub>2</sub></i>]�+�<i>v</i>[(<i>1�-�u</i>)<i>C<sub>4</sub>�+�uC<sub>3</sub></i>]</p>
+</ul>
+</ul>
+
+<p>If sample frequency of mesh cell is higher, it could be sufficient just
+to take the color of matching texel or it is possible to enhance picture
+quality by bilinear interpolation of closest texel colors as is shown in
+<b>Figure 5</b> and <b>Figure 6</b></p>
+
+<center><p><img src="./2 Texture Mapping_files/t6.gif" height="351" width="337"></p></center>
+
+<center><p><b><font color="#000080">Figure 6: Enhancing the quality of
+texture mapping,<br>
+if texture sample frequency is low </font></b></p></center>
+
+<p>
+</p><hr width="100%"><p></p>
+
+<center><p><a href="http://www.cescg.org/CESCG97/olearnik/index.htm"><img src="./2 Texture Mapping_files/index_mo.gif" height="24" width="43"></a></p></center>
+
+
+
+</body></html>
